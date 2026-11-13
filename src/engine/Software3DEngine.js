@@ -1258,4 +1258,3 @@ export class Software3DEngine {
     ctx.fillText(`SLAP SCRAM MUSHROOM ON REACTOR DESK! [${Math.max(0, this.game.eventSim.scramChallengeTimer).toFixed(1)}s]`, this.width / 2, 108);
   }
 }
-
