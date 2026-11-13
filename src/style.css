@@ -1,0 +1,882 @@
+/* ==========================================================================
+   Nuclear Plant Manager - 100% 3D Diegetic Engine (Zero WebGL)
+   Faithfully recreates the authentic Roblox Nuclear Power Plant Simulator / Scram
+   aesthetic matching user screenshots Image 1, 2, 3, 4.
+   ========================================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #1a1c22;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace, sans-serif;
+  user-select: none;
+  color: #f8fafc;
+}
+
+/* 3D Viewport & Camera Rig */
+#viewport {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  perspective: 950px;
+  perspective-origin: 50% 45%;
+  background: #1e2129;
+}
+
+#camera-rig {
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+#world {
+  position: absolute;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+
+/* Common 3D Base */
+.obj-3d {
+  position: absolute;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  backface-visibility: visible;
+}
+
+/* ==========================================================================
+   1. ROOM ARCHITECTURE (Floor, Front Wall, Mezzanine Office, Signage)
+   ========================================================================== */
+
+/* 3D Industrial Tiled Floor (Image 1) */
+.room-floor {
+  position: absolute;
+  width: 2600px;
+  height: 1800px;
+  left: -1300px;
+  top: -900px;
+  transform: translateY(180px) rotateX(90deg);
+  background-color: #3e414a;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 70px 70px;
+  box-shadow: inset 0 0 160px rgba(0, 0, 0, 0.8);
+  backface-visibility: visible;
+}
+
+/* Floor Runner Mats (Image 1) */
+.floor-mat {
+  position: absolute;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  backface-visibility: visible;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.floor-mat-label {
+  font-family: "Courier New", monospace;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #1a1e24;
+  opacity: 0.9;
+}
+
+/* Front Wall */
+.room-wall-front {
+  position: absolute;
+  width: 2600px;
+  height: 800px;
+  left: -1300px;
+  top: -400px;
+  transform: translate3d(0, -140px, -480px);
+  background: linear-gradient(180deg, #181a20 0%, #2b2f38 100%);
+  border-bottom: 6px solid #14161c;
+  backface-visibility: visible;
+}
+
+/* Mezzanine Office Gallery (Upper Right of Image 1) */
+.mezzanine-office {
+  position: absolute;
+  width: 580px;
+  height: 190px;
+  left: 80px;
+  top: -340px;
+  transform: translate3d(0, 0, -470px);
+  backface-visibility: visible;
+}
+
+.mezzanine-sign {
+  font-family: "Courier New", monospace;
+  font-weight: 900;
+  color: #cbb05a; /* Gold stencil matching Image 1 */
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  margin-bottom: 6px;
+}
+
+.mezzanine-sign .sign-main {
+  font-size: 24px;
+  display: inline-block;
+  margin-right: 14px;
+}
+
+.mezzanine-sign .sign-sub {
+  font-size: 16px;
+  display: inline-block;
+}
+
+.mezzanine-windows {
+  width: 570px;
+  height: 140px;
+  background: #11141a;
+  border: 4px solid #333844;
+  border-radius: 4px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9), 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.office-pane {
+  flex: 1;
+  border-right: 3px solid #282c36;
+  position: relative;
+  background: linear-gradient(180deg, rgba(240, 230, 210, 0.22) 0%, rgba(140, 160, 180, 0.1) 100%);
+}
+
+.office-interior-desk {
+  position: absolute;
+  bottom: 8px;
+  left: 15%;
+  width: 70%;
+  height: 28px;
+  background: #242933;
+  border-top: 2px solid #3b4252;
+}
+
+.office-screen-glow {
+  position: absolute;
+  bottom: 42px;
+  left: 35%;
+  width: 20px;
+  height: 14px;
+  background: #93c5fd;
+  box-shadow: 0 0 12px #60a5fa;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   2. MASTER OVERHEAD FACILITY DISPLAY BOARD (Upper Left, Image 1 & 3)
+   ========================================================================== */
+.master-overhead-board {
+  position: absolute;
+  width: 700px;
+  height: 250px;
+  left: -620px;
+  top: -330px;
+  transform: translate3d(0, 0, -465px);
+  background: #101217;
+  border: 4px solid #383e4c;
+  border-radius: 4px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+  display: flex;
+  padding: 8px;
+  gap: 8px;
+  backface-visibility: visible;
+}
+
+.overhead-strut {
+  position: absolute;
+  width: 4px;
+  height: 150px;
+  top: -150px;
+  background: #505869;
+}
+
+.overhead-left-col {
+  width: 125px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.badge-coolant {
+  background: #1e3a5f;
+  color: #60a5fa;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 6px;
+  border-radius: 2px;
+}
+
+.badge-rods {
+  background: #7f1d1d;
+  color: #ffffff;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 6px;
+  border-radius: 2px;
+}
+
+.badge-feedwater {
+  background: #4c1d95;
+  color: #ddd6fe;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 6px;
+  border-radius: 2px;
+}
+
+.badge-fuel {
+  background: #581c1c;
+  color: #fca5a5;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 6px;
+  border-radius: 2px;
+}
+
+.overhead-telemetry-box {
+  background: #080a0f;
+  border: 1px solid #1e293b;
+  padding: 5px;
+  border-radius: 2px;
+  font-family: monospace;
+  font-size: 9px;
+  color: #94a3b8;
+  margin-top: auto;
+}
+
+/* Circular Reactor Core Channel Lattice (Image 3) */
+.overhead-core-circle {
+  width: 125px;
+  height: 125px;
+  background: #05070c;
+  border: 2px solid #27303f;
+  border-radius: 50%;
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  grid-template-rows: repeat(11, 1fr);
+  gap: 2px;
+  padding: 5px;
+  align-self: center;
+}
+
+.core-pin {
+  border-radius: 1px;
+  background: #22c55e;
+}
+.core-pin.coolant { background: #38bdf8; }
+.core-pin.warm { background: #f59e0b; }
+.core-pin.scram { background: #ef4444; }
+
+.overhead-right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.power-orders-hdr {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #e2b342;
+}
+
+.supply-progress-bar {
+  width: 100%;
+  height: 24px;
+  background: #080b10;
+  border: 1px solid #475569;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.supply-progress-fill {
+  height: 100%;
+  background: #10b981;
+  transition: width 0.3s ease;
+}
+
+.supply-progress-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.overhead-stats-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.overhead-log-ticker {
+  background: #05070d;
+  border: 1px solid #1e293b;
+  padding: 4px 6px;
+  border-radius: 2px;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-top: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   3. 3D MODULAR CONSOLES (Beige Desks with Sloped Decks, Image 1 & 2)
+   ========================================================================== */
+.console-station-3d {
+  position: absolute;
+  width: 330px;
+  height: 140px;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  backface-visibility: visible;
+}
+
+/* 3D Console Box */
+.console-base-box {
+  position: absolute;
+  width: 310px;
+  height: 65px;
+  left: 10px;
+  bottom: 0;
+  background: #b5b1a4;
+  border: 1px solid #2d323b;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+  border-radius: 2px;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+/* Sloped Control Deck (Image 2) - Tilted UPWARDS towards camera! */
+.console-top-deck {
+  position: absolute;
+  width: 320px;
+  height: 120px;
+  left: 5px;
+  top: -30px;
+  transform: translateY(-20px) translateZ(40px) rotateX(42deg);
+  transform-style: preserve-3d;
+  background: #dedad0; /* Beige textured metal */
+  border: 2px solid #333842;
+  border-radius: 4px;
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.4), 0 8px 16px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 6px;
+  gap: 6px;
+  z-index: 10;
+  backface-visibility: visible;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.console-station-3d:hover .console-top-deck {
+  border-color: #38bdf8;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+}
+
+/* Powder-Coated Steel-Blue Inset Instrument Panels (Image 2) */
+.panel-steel-blue {
+  background: #56728a; /* Authentic steel blue */
+  border: 2px solid #2f4354;
+  border-radius: 3px;
+  padding: 5px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.screw-rivet {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #1c2732;
+  border-radius: 50%;
+}
+.screw-rivet.tl { top: 2px; left: 2px; }
+.screw-rivet.tr { top: 2px; right: 2px; }
+.screw-rivet.bl { bottom: 2px; left: 2px; }
+.screw-rivet.br { bottom: 2px; right: 2px; }
+
+/* Analogue Circular Needle Dials (Image 2) */
+.dial-meter-circular {
+  width: 34px;
+  height: 34px;
+  background: #f8fafc;
+  border: 2px solid #1e293b;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+  margin-bottom: 2px;
+}
+
+.dial-meter-needle {
+  position: absolute;
+  width: 2px;
+  height: 13px;
+  background: #dc2626;
+  left: 13.5px;
+  top: 3px;
+  transform-origin: bottom center;
+  border-radius: 1px;
+}
+
+.dial-meter-pivot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #0f172a;
+  border-radius: 50%;
+  left: 13px;
+  top: 13px;
+}
+
+.dial-label {
+  font-size: 7px;
+  font-weight: 700;
+  color: #f8fafc;
+  text-align: center;
+}
+
+/* Vertical Slider Gauges (Image 2) */
+.vertical-slider-gauge {
+  width: 16px;
+  height: 54px;
+  background: #f8fafc;
+  border: 1.5px solid #1e293b;
+  position: relative;
+  border-radius: 2px;
+}
+
+.vertical-slider-slot {
+  position: absolute;
+  width: 3px;
+  height: 44px;
+  left: 5px;
+  top: 3px;
+  background: #0f172a;
+}
+
+.vertical-slider-knob {
+  position: absolute;
+  width: 12px;
+  height: 5px;
+  left: 0.5px;
+  background: #dc2626;
+  border: 1px solid #ffffff;
+  border-radius: 1px;
+}
+
+/* Authentic Rotary Selector Switch (Image 2) */
+.rotary-switch-box {
+  width: 28px;
+  height: 28px;
+  background: #242730;
+  border: 1px solid #101217;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.rotary-switch-knob {
+  width: 16px;
+  height: 16px;
+  background: #090c12;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.rotary-switch-knob.on { transform: rotate(45deg); }
+.rotary-switch-knob.off { transform: rotate(-45deg); }
+
+.rotary-notch {
+  position: absolute;
+  width: 2px;
+  height: 7px;
+  background: #ffffff;
+  left: 7px;
+  top: 1px;
+}
+
+/* Yellow Pistol Lever Switch (Image 2: Feedwater Control) */
+.yellow-pistol-switch {
+  width: 30px;
+  height: 30px;
+  background: #242730;
+  border: 1px solid #101217;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.yellow-pistol-handle {
+  width: 9px;
+  height: 22px;
+  background: #eab308;
+  border: 1px solid #ca8a04;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 3px #fef08a;
+  transition: transform 0.15s ease;
+}
+.yellow-pistol-handle.on { transform: rotate(35deg); }
+.yellow-pistol-handle.off { transform: rotate(-35deg); }
+
+/* Glowing Industrial Indicator Lamp (Image 2) */
+.indicator-lamp-led {
+  width: 10px;
+  height: 10px;
+  background: #166534;
+  border: 1.5px solid #1e293b;
+  border-radius: 50%;
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.indicator-lamp-led.on {
+  background: #22c55e;
+  box-shadow: 0 0 10px #4ade80, 0 0 16px rgba(74, 222, 128, 0.8);
+}
+
+/* Engraved White Nameplates (Image 2) */
+.engraved-nameplate {
+  background: #f8fafc;
+  border: 1px solid #0f172a;
+  border-radius: 1px;
+  padding: 1px 5px;
+  font-family: sans-serif;
+  font-size: 7px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+/* 3D Chunky Retro Beige CRT Monitor (Center of Image 2) */
+.chunky-crt-monitor-3d {
+  width: 95px;
+  height: 72px;
+  background: #dedad0; /* Beige housing */
+  border: 2.5px solid #2b303c;
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.crt-glass-screen {
+  flex: 1;
+  background: #05080e;
+  border-radius: 4px;
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.crt-glass-screen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.04) 2px,
+    rgba(255, 255, 255, 0.04) 4px
+  );
+  pointer-events: none;
+}
+
+.crt-text-sub {
+  font-family: "Courier New", monospace;
+  font-size: 5px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.crt-text-main {
+  font-family: "Courier New", monospace;
+  font-size: 7px;
+  font-weight: 800;
+  color: #4ade80;
+}
+
+.crt-text-val {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+/* Red Mushroom SCRAM Button (Station 1: Reactor Primary) */
+.scram-console-box {
+  width: 48px;
+  height: 48px;
+  background: #7f1d1d;
+  border: 2px solid #f59e0b;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.scram-mushroom-dome {
+  width: 34px;
+  height: 34px;
+  background: #dc2626;
+  border: 2px solid #fca5a5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-size: 8px;
+  font-weight: 900;
+  color: #ffffff;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.scram-mushroom-dome:active {
+  transform: scale(0.92) translateY(2px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* In-World Physical 3D Return Button */
+.physical-back-btn {
+  background: #1e2430;
+  border: 1.5px solid #38bdf8;
+  border-radius: 4px;
+  padding: 3px 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.1s, background-color 0.15s;
+}
+
+.physical-back-btn:hover {
+  background: #0284c7;
+}
+
+.back-btn-title {
+  font-size: 8px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.back-btn-sub {
+  font-size: 6px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   4. 3D ROBLOX BLOCKY MINIFIGURES (Roblox Style, Image 1 & 2)
+   ========================================================================== */
+.roblox-staff-3d {
+  position: absolute;
+  width: 28px;
+  height: 65px;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.roblox-shadow {
+  position: absolute;
+  width: 30px;
+  height: 12px;
+  left: -1px;
+  bottom: -4px;
+  background: rgba(15, 20, 28, 0.45);
+  border-radius: 50%;
+}
+
+.roblox-legs {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 24px;
+  display: flex;
+  gap: 2px;
+}
+
+.roblox-leg {
+  flex: 1;
+  background: #1c2431;
+  border-radius: 2px 2px 0 0;
+}
+
+.roblox-torso {
+  position: absolute;
+  bottom: 24px;
+  width: 100%;
+  height: 24px;
+  background: #ea580c;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.roblox-torso.yellow-vest { background: #eab308; }
+.roblox-torso.blue-vest { background: #0284c7; }
+
+.roblox-reflective-strip {
+  width: 100%;
+  height: 4px;
+  background: #e2e8f0;
+}
+
+.roblox-head {
+  position: absolute;
+  bottom: 48px;
+  left: 6px;
+  width: 16px;
+  height: 14px;
+  background: #facc15;
+  border-radius: 2px;
+}
+
+.roblox-hard-hat {
+  position: absolute;
+  bottom: 58px;
+  left: 3px;
+  width: 22px;
+  height: 11px;
+  background: #facc15;
+  border-radius: 11px 11px 0 0;
+  box-shadow: 0 2px 0 #ca8a04;
+}
+
+/* ==========================================================================
+   5. ENVIRONMENT PROPS (Planters, Swivel Chair)
+   ========================================================================== */
+.office-chair-3d {
+  position: absolute;
+  width: 28px;
+  height: 40px;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.chair-seat {
+  position: absolute;
+  bottom: 14px;
+  width: 28px;
+  height: 8px;
+  background: #272a33;
+  border-radius: 3px;
+}
+
+.chair-backrest {
+  position: absolute;
+  bottom: 22px;
+  width: 26px;
+  height: 20px;
+  left: 1px;
+  background: #1f2229;
+  border-radius: 3px 3px 0 0;
+}
+
+.planter-box-3d {
+  position: absolute;
+  width: 44px;
+  height: 26px;
+  background: #333842;
+  border: 2px solid #20242c;
+  border-radius: 3px;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.planter-foliage {
+  position: absolute;
+  top: -14px;
+  left: 2px;
+  width: 40px;
+  height: 20px;
+  background: #256b3c;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 3px 0 #1b532e;
+}
+
+.emergency-alarm-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background: rgba(220, 38, 38, 0.22);
+  animation: alarmPulse 0.5s infinite alternate;
+}
+
+@keyframes alarmPulse {
+  0% { opacity: 0.1; }
+  100% { opacity: 0.45; }
+}
